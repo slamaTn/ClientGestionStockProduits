@@ -5,12 +5,19 @@
       <table class="table table-hover">
         <thead>
           <tr>
-            <th>Réference</th><th>Quantité</th><th>Prix unitaire</th>
+            <th>Référence</th><th>Quantité</th><th>Prix unitaire</th>
+            <th>
+              <button class="btn btn-outline-primary" (click) = "operation = 'add'; initProduit(); "> ADD </button>
+            </th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let produit of produits">
             <td>{{produit.ref}}</td> <td>{{produit.quantite}}</td> <td>{{produit.prixUnitaire}}</td>
+            <td>
+              <button class="btn btn-outline-primary" (click) = "operation = 'edit'; selectedProduit = produit"> Edit </button>
+              <button class="btn btn-outline-danger" (click) = "operation = 'remove'; selectedProduit = produit"> Remove </button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -18,31 +25,47 @@
     <div class="col-lg-5">
       <div class="card">
         <div class="card-header bg-info text-white">
-          Ajouter Produit
+          {{ operation == 'add' ? 'Ajouter Produit' :
+             operation == 'edit' ? 'Modifier Produit' :
+             operation == 'remove' ? 'Supprimer Produit' : '' }}
         </div>
         <div class="card-body">
-          <form [formGroup]="produitForm">
+          <div *ngIf= "operation == 'add' || operation == 'edit' ">
+              <form [formGroup]="produitForm">
 
-            <div class="form-group">
-              <label > Réference : </label>
-              <input type="text" class="form-control" formControlName="ref">
-            </div>
-            <div class="alert alert-danger" *ngIf="produitForm.controls['ref'].invalid &&
-                                                   (produitForm.controls['ref'].touched ||
-                                                   produitForm.controls['ref'].dirty)">
-              Réference est obligatoire!
-            </div>
-            <div class="form-group">
-              <label > Quantité : </label>
-              <input type="number" class="form-control" formControlName="quantite">
-            </div>
-            <div class="form-group">
-              <label > Prix Unitaire : </label>
-              <input type="number" class="form-control" formControlName="prixUnitaire">
-            </div>
-            <button class="btn btn-success" [disabled]= "produitForm.prestine || produitForm.invalid">Ajouter</button>
+                <div class="form-group">
+                  <label > Réference : </label>
+                  <input type="text" class="form-control" formControlName="ref" [(ngModel)]="selectedProduit.ref">
+                </div>
+                <div class="alert alert-danger" *ngIf="produitForm.controls['ref'].invalid &&
+                                                       (produitForm.controls['ref'].touched ||
+                                                       produitForm.controls['ref'].dirty)">
+                  Référence est obligatoire!
+                </div>
+                <div class="form-group">
+                  <label > Quantité : </label>
+                  <input type="number" class="form-control" formControlName="quantite" [(ngModel)]="selectedProduit.quantite">
+                </div>
+                <div class="form-group">
+                  <label > Prix Unitaire : </label>
+                  <input type="number" class="form-control" formControlName="prixUnitaire" [(ngModel)]="selectedProduit.prixUnitaire">
+                </div>
+                <button class="btn btn-success" [disabled]= "produitForm.prestine || produitForm.invalid"
+                (click)="operation == 'add' ? addProduit() : updateProduit()">
+                {{ operation == 'add' ? 'Ajouter' : operation == 'edit' ? 'Modifier' : '' }}
+                </button>
 
-          </form>
+              </form>
+            </div>
+            <div *ngIf="operation == 'remove'">
+              <p class="card-title">
+                Référence: {{selectedProduit.ref}}
+              </p>
+              <p>
+                Voulez-vous supprimer ce produit?
+              </p>
+              <button class="btn btn-success" [disabled]="!selectedProduit.ref" (click)="deleteProduit()"> Confirmer</button>
+            </div>
         </div>
         <div class="card-footer">
 
